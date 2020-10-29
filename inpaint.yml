@@ -3,15 +3,15 @@
 num_gpus_per_job: 1  # number of gpus each job need
 num_cpus_per_job: 4  # number of gpus each job need
 num_hosts_per_job: 1
-memory_per_job: 32  # number of gpus each job need
+memory_per_job: 16  # number of gpus each job need
 gpu_type: 'nvidia-1050i'
 
 # parameters
 name: sim_001  # any name
-model_restore: 'release_places2_256'  # logs/places2_gated_conv
+model_restore: 'logs/release_places2_256'  # logs/places2_gated_conv
 dataset: 's20e15'  # 'tmnist', 'dtd', 'places2', 'celeba', 'imagenet', 'cityscapes'
 random_crop: False  # Set to false when dataset is 'celebahq', meaning only resize the images to img_shapes, instead of crop img_shapes from a larger raw image. This is useful when you train on images with different resolutions like places2. In these cases, please set random_crop to true.
-val: True  # true if you want to view validation results in tensorboard
+val: False  # true if you want to view validation results in tensorboard
 log_dir: logs/release_places2_256
 
 gan: 'sngan'
@@ -37,19 +37,19 @@ data_flist:
 
 
 static_view_size: 30
-img_shapes: [144, 256, 3]
+img_shapes: [288, 512, 3]
 height: 144
 width: 256
 max_delta_height: 32
 max_delta_width: 32
-batch_size: 16
+batch_size: 8
 vertical_margin: 0
 horizontal_margin: 0
 
 # loss
 ae_loss: True
 l1_loss: True
-l1_loss_alpha: 1.
+l1_loss_alpha: 0.5
 
 # to tune
 guided: False
