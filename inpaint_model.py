@@ -287,7 +287,7 @@ class InpaintCAModel(Model):
             edge = edge * masks[:, :, :, 0:1]
             xin = tf.concat([batch_incomplete, edge], axis=3)
         else:
-            xin = batch_incomplete
+            bbox = random_bbox(config)
         # inpaint
         x1, x2, flow = self.build_inpaint_net(
             xin, masks, reuse=reuse, training=is_training)

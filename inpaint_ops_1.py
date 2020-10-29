@@ -102,32 +102,55 @@ def dis_conv(x, cnum, ksize=5, stride=2, name='conv', training=True):
     return x
 
 
-def random_bbox(config):
-    t = tf.constant(0)
-    l = tf.constant(256)
-    h = tf.constant(config.HEIGHT)
-    w = tf.constant(config.WIDTH)
+def random_bbox(FLAGS):
+    """Generate a random tlhw.
+
+    Returns:
+        tuple: (top, left, height, width)
+
+    """
+    img_shape = FLAGS.img_shapes
+    img_height = img_shape[0]
+    img_width = img_shape[1]
+    maxt = img_height - FLAGS.vertical_margin - FLAGS.height
+    maxl = img_width - FLAGS.horizontal_margin - FLAGS.width
+    t = tf.random_uniform(
+        [], minval=FLAGS.vertical_margin, maxval=maxt, dtype=tf.int32)
+    l = tf.random_uniform(
+        [], minval=FLAGS.horizontal_margin, maxval=maxl, dtype=tf.int32)
+    h = tf.constant(FLAGS.height)
+    w = tf.constant(FLAGS.width)
     return (t, l, h, w)
-def bbox2mask(bbox, config, name='mask'):
+
+
+def bbox2mask(FLAGS, bbox, name='mask'):
+    """Generate mask tensor from bbox.
+
+    Args:
+        bbox: tuple, (top, left, height, width)
+
+    Returns:
+        tf.Tensor: output with shape [1, H, W, 1]
+
+    """
     def npmask(bbox, height, width, delta_h, delta_w):
         mask = np.zeros((1, height, width, 1), np.float32)
-        h = 0 
-        w = 0
+        h = np.random.randint(delta_h//2+1)
+        w = np.random.randint(delta_w//2+1)
         mask[:, bbox[0]+h:bbox[0]+bbox[2]-h,
              bbox[1]+w:bbox[1]+bbox[3]-w, :] = 1.
         return mask
     with tf.variable_scope(name), tf.device('/cpu:0'):
-        img_shape = config.IMG_SHAPES
+        img_shape = FLAGS.img_shapes
         height = img_shape[0]
         width = img_shape[1]
         mask = tf.py_func(
             npmask,
             [bbox, height, width,
-             config.MAX_DELTA_HEIGHT, config.MAX_DELTA_WIDTH],
+             FLAGS.max_delta_height, FLAGS.max_delta_width],
             tf.float32, stateful=False)
         mask.set_shape([1] + [height, width] + [1])
     return mask
-
 
 
 def brush_stroke_mask(FLAGS, name='mask'):
